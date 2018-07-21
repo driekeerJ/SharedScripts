@@ -207,10 +207,10 @@ _PrtUsage()
 {
 cat<< EOT
     $ScriptSelf
-    --currentfilename -c                     OPTIONAL, change the name of the current file Default: "CSV_A_$(date +%Y%m%d)*"
-    --newfile -n                             OPTIONAL, change the name of the current file Default: "YNAB_Lopend$(date +"%Y%m%d%H%M")_rabo.csv"
-    --currentdir -u                          OPTIONAL, change the directory where the current file is in Default: "${Home}/Downloads"
-    --newdir -e                              OPTIONAL, change the directory where the new file is in Default: "${Home}/tmp"
+    --currentfilename -c                     OPTIONAL, change the name of the current file Default: "${CurrentFile}"
+    --newfile -n                             OPTIONAL, change the name of the current file Default: "${NewFile}"
+    --currentdir -u                          OPTIONAL, change the directory where the current file is in Default: "${FilePathCurrent}"
+    --newdir -e                              OPTIONAL, change the directory where the new file is in Default: "${FilePathNew}"
     --help -h                                this overview
 EOT
 exit 0
