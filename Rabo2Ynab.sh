@@ -20,9 +20,8 @@ Version=“0.1”
 Home="/Users/jeroen"
 LogDir="${Home}/log"
 ScriptSelf=$(basename "$0")
-FilePathCurrent="${Home}/Downloads"
 FilePathNew="${Home}/tmp"
-CurrentFile="CSV_A_$(date +%Y%m%d)*"
+CurrentFile=$(ls "${Home}/Downloads"/CSV* | tail -n1)
 NewFile="YNAB_Lopend$(date +"%Y%m%d%H%M")_rabo.csv"
 UBSMAI="jjjvdw@outlook.com"
 
@@ -117,8 +116,8 @@ _PreChecks(){
   fi
 
   # Check if the CurrentFile exists and is not empty
-  if [[ ! -s "${FilePathCurrent}"/"${CurrentFile}" ]]; then
-    _LogWrite ERROR "${FilePathCurrent}/${CurrentFile} doesn't exist or is empty, can't use this"
+  if [[ ! -s "${CurrentFile}" ]]; then
+    _LogWrite ERROR "${CurrentFile} doesn't exist or is empty, can't use this"
   fi
 
   # The checks of the newfile are different than normal because of the wildcard in the file name. You can't use -s in that case
@@ -209,7 +208,6 @@ cat<< EOT
     $ScriptSelf
     --currentfilename -c                     OPTIONAL, change the name of the current file Default: "${CurrentFile}"
     --newfile -n                             OPTIONAL, change the name of the current file Default: "${NewFile}"
-    --currentdir -u                          OPTIONAL, change the directory where the current file is in Default: "${FilePathCurrent}"
     --newdir -e                              OPTIONAL, change the directory where the new file is in Default: "${FilePathNew}"
     --help -h                                this overview
 EOT
@@ -239,7 +237,7 @@ _EndMessage(){
 # de print substr zorgt ervoor dat de dateformat staat zoals YNAB het verwacht, namelijk DD/MM/YYYY
 _Rabobank(){
   _LogWrite INFO "Getting the right columns for the new YNAB file" #TODO dese awk levert nog niet de juiste payee op.
-  awk -F'"' -v OFS='' '{ for (i=2; i<=NF; i+=2) gsub(",", ".", $i) } 1' "${FilePathCurrent}"/"${CurrentFile}" |\
+  awk -F'"' -v OFS='' '{ for (i=2; i<=NF; i+=2) gsub(",", ".", $i) } 1' "${CurrentFile}" |\
   awk -F "\"*,\"*" '{
 	if ($7 ~ /-/)
 		print substr($5,6,2)"/"substr($5,9,2)"/"substr($5,0,4)","$10 " - " $11 " - " $20",,"$20","$7",";
@@ -270,13 +268,12 @@ for arg in "$@"; do
 done
 
 OPTIND=1
-while getopts "c:n:u:e:h" opt
+while getopts "c:n:e:h" opt
 do
   case "$opt" in
     "h") _PrtUsage; exit 0 ;;                        # long and short option plus call a function
     "c") CurrentFile="${OPTARG}";;
     "n") NewFile="${OPTARG}";;
-    "u") FilePathCurrent="${OPTARG}";;
     "e") FilePathNew="${OPTARG}";;
     "?") _PrtUsage >&2; exit 1 ;;
     ":") _PrtUsage >&2; exit 1 ;;
